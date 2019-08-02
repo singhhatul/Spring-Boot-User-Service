@@ -1,6 +1,7 @@
 package com.stackroute.controller;
 
 import com.stackroute.domain.User;
+import com.stackroute.exception.UserAlreadyExistException;
 import com.stackroute.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,8 +23,12 @@ public class UserController {
 
     @PostMapping("user")
     public ResponseEntity<?> saveUser(@RequestBody User user) {
-        User savedUser = userService.saveUser(user);
-        return new ResponseEntity<>(savedUser, HttpStatus.OK);
+        try {
+            User savedUser = userService.saveUser(user);
+            return new ResponseEntity<>(savedUser, HttpStatus.OK);
+        } catch (UserAlreadyExistException ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
+        }
     }
 
     @GetMapping("user/{id}")
